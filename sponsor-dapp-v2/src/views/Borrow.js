@@ -78,7 +78,11 @@ function Borrow(props) {
   const { amount: tokenAmount, handleChangeAmount: handleChangeTokenAmount } = useTextInput();
 
   const { send, status } = useCacheSend(tokenAddress, "depositAndCreateTokens");
-  const handleCreateClick = useSendTransactionOnLink({ send, status }, [marginAmount, tokenAmount], props.history);
+  const { handleSubmit: handleCreateClick, isLoading } = useSendTransactionOnLink(
+    { send, status },
+    [marginAmount, tokenAmount],
+    props.history
+  );
 
   const data = useCollateralizationInformation(tokenAddress, "");
   data.updatedUnderlyingPrice = useCacheCall(tokenAddress, "getUpdatedUnderlyingPrice");
@@ -89,7 +93,6 @@ function Borrow(props) {
 
   const allowedToProceed =
     marginAmount !== "" && tokenAmount !== "" && toBN(toWei(tokenAmount)).lte(maxTokensThatCanBeCreated);
-  const isLoading = status === "pending";
 
   const format = createFormatFunction(drizzle.web3, 4);
 

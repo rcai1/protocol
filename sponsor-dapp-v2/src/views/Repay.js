@@ -53,7 +53,11 @@ function Repay(props) {
 
   const { amount, handleChangeAmount } = useTextInput();
   const { send, status } = useCacheSend(tokenAddress, "redeemTokens");
-  const handleRedeemClick = useSendTransactionOnLink({ send, status }, [amount], props.history);
+  const { handleSubmit: handleRedeemClick, isLoading: isLoadingRedeem } = useSendTransactionOnLink(
+    { send, status },
+    [amount],
+    props.history
+  );
 
   const data = useCollateralizationInformation(tokenAddress, "");
   data.updatedUnderlyingPrice = useCacheCall(tokenAddress, "getUpdatedUnderlyingPrice");
@@ -69,7 +73,6 @@ function Repay(props) {
     return <div>Loading redeem data</div>;
   }
 
-  const isLoadingRedeem = status === "pending";
   const allowedToProceed = amount !== "" && toBN(toWei(amount)).lte(toBN(data.tokenBalance));
 
   const format = createFormatFunction(drizzle.web3, 4);

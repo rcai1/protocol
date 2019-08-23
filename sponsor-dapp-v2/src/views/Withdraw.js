@@ -19,7 +19,11 @@ function Withdraw(props) {
   const { amount: withdrawAmount, handleChangeAmount } = useTextInput();
 
   const { send, status } = useCacheSend(tokenAddress, "withdraw");
-  const handleWithdrawClick = useSendTransactionOnLink({ send, status }, [withdrawAmount], props.history);
+  const { handleSubmit: handleWithdrawClick, isLoading } = useSendTransactionOnLink(
+    { send, status },
+    [withdrawAmount],
+    props.history
+  );
 
   const data = useCollateralizationInformation(
     tokenAddress,
@@ -32,7 +36,6 @@ function Withdraw(props) {
 
   // TODO(ptare): Determine the right set of conditions to allow proceeding.
   const allowedToProceed = withdrawAmount !== "";
-  const isLoading = status === "pending";
 
   return (
     <div className="popup">

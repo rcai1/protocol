@@ -94,7 +94,7 @@ export function useSendTransactionOnLink(cacheSend, amounts, history) {
       history.replace(linkedPage);
     }
   }, [status, linkedPage, history]);
-  return handleSubmit;
+  return { handleSubmit, isLoading: status === "pending" };
 }
 
 export function useCollateralizationInformation(tokenAddress, changeInShortBalance) {

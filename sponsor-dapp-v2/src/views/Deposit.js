@@ -19,7 +19,11 @@ function Deposit(props) {
   const { amount: depositAmount, handleChangeAmount } = useTextInput();
 
   const { send, status } = useCacheSend(tokenAddress, "deposit");
-  const handleDepositClick = useSendTransactionOnLink({ send, status }, [depositAmount], props.history);
+  const { handleSubmit: handleDepositClick, isLoading } = useSendTransactionOnLink(
+    { send, status },
+    [depositAmount],
+    props.history
+  );
 
   const data = useCollateralizationInformation(tokenAddress, depositAmount);
   if (!data.ready) {
@@ -28,7 +32,6 @@ function Deposit(props) {
 
   // TODO(ptare): Determine the right set of conditions to allow proceeding.
   const allowedToProceed = depositAmount !== "";
-  const isLoading = status === "pending";
 
   return (
     <div className="popup">

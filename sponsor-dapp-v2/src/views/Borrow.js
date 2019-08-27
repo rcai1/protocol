@@ -21,8 +21,11 @@ function useMaxTokensThatCanBeCreated(tokenAddress, marginAmount) {
   const tokenValue = useCacheCall(tokenAddress, "calcTokenValue");
 
   const dataFetched = derivativeStorage && newExcessMargin && updatedPrice && tokenValue;
-  if (!dataFetched || marginAmount === "") {
-    return false;
+    if (marginAmount === "") {
+        return { ready: true, maxTokens: toBN("0")};
+    }
+  if (!dataFetched) {
+        return { ready: false, maxTokens: toBN("0")};
   }
 
   const fpScalingFactor = toBN(toWei("1"));
@@ -65,7 +68,7 @@ function useMaxTokensThatCanBeCreated(tokenAddress, marginAmount) {
 
   // The contract doesn't allow the sponsor to escape default and create tokens at once: they have to first
   // deposit and then create. I.e., a negative `marginLimit` means that remargining would default the contract.
-  return marginLimit.isNeg() ? toBN("0") : limit;
+  return { ready: true, maxTokens: marginLimit.isNeg() ? toBN("0") : limit};
 }
 
 function Borrow(props) {
@@ -86,13 +89,13 @@ function Borrow(props) {
 
   const data = useCollateralizationInformation(tokenAddress, "");
   data.updatedUnderlyingPrice = useCacheCall(tokenAddress, "getUpdatedUnderlyingPrice");
-  const maxTokensThatCanBeCreated = useMaxTokensThatCanBeCreated(tokenAddress, marginAmount);
-  if (!data.ready || !data.updatedUnderlyingPrice || !maxTokensThatCanBeCreated) {
+  const {ready, maxTokens} = useMaxTokensThatCanBeCreated(tokenAddress, marginAmount);
+  if (!data.ready || !data.updatedUnderlyingPrice || !ready) {
     return <div>Loading borrow data</div>;
   }
 
   const allowedToProceed =
-    marginAmount !== "" && tokenAmount !== "" && toBN(toWei(tokenAmount)).lte(maxTokensThatCanBeCreated);
+    marginAmount !== "" && tokenAmount !== "" && toBN(toWei(tokenAmount)).lte(maxTokens);
 
   const format = createFormatFunction(drizzle.web3, 4);
 
@@ -159,7 +162,7 @@ function Borrow(props) {
 
                 {tokenAmount !== "" && marginAmount !== "" && (
                   <div className="form-hint">
-                    <p>(Max {format(maxTokensThatCanBeCreated)})</p>
+                    <p>(Max {format(maxTokens)})</p>
                   </div>
                 )}
               </div>
